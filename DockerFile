@@ -1,50 +1,46 @@
 # ==========================================
-# STAGE 1: Build (Dependencies & Compilation)
+# STAGE 1: Build
 # ==========================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
+
+# Use corepack for a more robust pnpm installation
+RUN corepack enable && corepack prepare pnpm@10.33.1 --activate
 
 WORKDIR /usr/src/app
 
-# Copy dependency files
-COPY package*.json ./
-COPY tsconfig.build.json ./
-COPY tsconfig.json ./
+# Copy configuration and dependency files
+COPY package.json pnpm-lock.yaml .npmrc ./
 
-# Install all dependencies (including devDependencies)
-RUN npm ci
+# Install ALL dependencies
+RUN pnpm install --frozen-lockfile
 
-# Copy source code and Prisma schema (we will add Prisma in the next step)
+# Copy the rest of the code
 COPY . .
 
-# Here we will run prisma generate (we'll uncomment this later)
-# RUN npx prisma generate
-
-# Compile the NestJS project
-RUN npm run build
+# Build the project
+RUN pnpm run build
 
 # ==========================================
-# STAGE 2: Production (Lightweight Final Image)
+# STAGE 2: Production
 # ==========================================
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
-# Set environment to production
+RUN corepack enable && corepack prepare pnpm@10.33.1 --activate
+
 ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
 
-# Copy only strictly necessary files from the build stage
-COPY package*.json ./
+# Copy only necessary files
+COPY --from=builder /usr/src/app/package.json ./
+COPY --from=builder /usr/src/app/pnpm-lock.yaml ./
+COPY --from=builder /usr/src/app/.npmrc ./
 COPY --from=builder /usr/src/app/dist ./dist
-# COPY --from=builder /usr/src/app/prisma ./prisma
 
-# Install only production dependencies, ignoring devDependencies
-RUN npm ci --only=production
+# Install only production dependencies
+RUN pnpm install --prod --frozen-lockfile
 
-# (Optional) Clean npm cache to make the image even smaller
-RUN npm cache clean --force
-
-# Expose the default NestJS port
 EXPOSE 3000
 
-# Secure startup command (no nodemon or ts-node)
+# Entry point
 CMD ["node", "dist/main"]
