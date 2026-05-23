@@ -1,98 +1,230 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# WEX Purchase Currency Conversion API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API for storing purchase transactions in United States dollars and retrieving those purchases converted to currencies supported by the Treasury Reporting Rates of Exchange API.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project is planned as a production-oriented backend service using DDD, automated tests, PostgreSQL persistence, CI validation, and secure defaults.
 
-## Description
+## Requirements Covered
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Store a purchase transaction with:
+  - description;
+  - transaction date;
+  - purchase amount in USD;
+  - unique identifier.
+- Validate:
+  - description length up to 50 characters;
+  - valid transaction date;
+  - positive purchase amount rounded to cents.
+- Retrieve a stored purchase converted to a target currency.
+- Use the exchange rate active on or before the purchase date.
+- Reject conversion when no valid exchange rate exists within 6 months before the purchase date.
+- Round converted amounts to two decimal places.
 
-## Project setup
+## Planned Tech Stack
 
-```bash
-$ pnpm install
+- Runtime: Node.js 20+
+- Package manager: pnpm
+- Language: TypeScript
+- Framework: NestJS
+- Architecture: DDD + Hexagonal Architecture
+- Database: PostgreSQL
+- ORM: Prisma
+- Logging: Pino
+- Tests: Jest
+- Local infrastructure: Docker Compose
+- CI: GitHub Actions
+
+## Architecture Overview
+
+The codebase should keep business rules isolated from framework and infrastructure details.
+
+Planned structure:
+
+```text
+src/
+  domain/
+  application/
+  infrastructure/
+  interfaces/
+    http/
+  shared/
 ```
 
-## Compile and run the project
+Core rules should live in `domain` and `application`. NestJS controllers, Prisma repositories, Treasury API clients, logging, and configuration should be implemented as adapters.
+
+## Prerequisites
+
+- Node.js 20 or newer
+- pnpm
+- Docker and Docker Compose
+- Git
+
+Install pnpm if needed:
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+corepack enable
+corepack prepare pnpm@latest --activate
 ```
 
-## Run tests
+## Environment Variables
+
+Create a `.env` file based on `.env.example` once the project scaffold is available.
+
+Expected variables:
+
+```env
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgresql://wex_user:wex_password@localhost:5432/wex_db?schema=public
+TREASURY_API_BASE_URL=https://api.fiscaldata.treasury.gov/services/api/fiscal_service
+```
+
+Additional variables may be introduced as security, observability, and deployment features are implemented.
+
+## Local Development
+
+Install dependencies:
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Start local infrastructure:
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker compose up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Generate Prisma client:
 
-## Resources
+```bash
+pnpm prisma generate
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Run database migrations:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+pnpm prisma migrate deploy
+```
 
-## Support
+Start the API in development mode:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+pnpm dev
+```
 
-## Stay in touch
+## Planned Scripts
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm test
+pnpm test:cov
+pnpm test:e2e
+pnpm prisma generate
+pnpm prisma migrate deploy
+```
 
-## License
+## API Endpoints
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Create Purchase
+
+```http
+POST /purchases
+Content-Type: application/json
+Idempotency-Key: <uuid-v4>
+```
+
+Request body:
+
+```json
+{
+  "description": "Office supplies",
+  "transactionDate": "2026-05-23",
+  "purchaseAmount": "125.49"
+}
+```
+
+Expected response:
+
+```json
+{
+  "id": "8c5ed6b1-8e1d-4c96-8dc0-6e10a05cb4c1",
+  "description": "Office supplies",
+  "transactionDate": "2026-05-23",
+  "purchaseAmountUsd": "125.49"
+}
+```
+
+### Retrieve Converted Purchase
+
+```http
+GET /purchases/{id}/conversions/{currency}
+```
+
+Expected response:
+
+```json
+{
+  "id": "8c5ed6b1-8e1d-4c96-8dc0-6e10a05cb4c1",
+  "description": "Office supplies",
+  "transactionDate": "2026-05-23",
+  "purchaseAmountUsd": "125.49",
+  "targetCurrency": "EUR",
+  "exchangeRate": "0.9200",
+  "convertedAmount": "115.45"
+}
+```
+
+## Testing Strategy
+
+The project should use a layered testing strategy:
+
+- Unit tests for domain value objects, entities, and business rules.
+- Unit tests for application use cases with mocked ports.
+- Integration tests for Prisma repositories using PostgreSQL.
+- E2E tests for HTTP contracts.
+- Fixture-based tests for Treasury API integration.
+
+Coverage gates should be enforced by CI:
+
+- Statements: 85%
+- Branches: 80%
+- Functions: 85%
+- Lines: 85%
+
+Run tests:
+
+```bash
+pnpm test
+pnpm test:cov
+pnpm test:e2e
+```
+
+## CI
+
+GitHub Actions should validate every pull request and push to `main`.
+
+The pipeline should run:
+
+- dependency installation with pnpm;
+- lint;
+- TypeScript build;
+- Prisma generate;
+- Prisma migrations against a temporary PostgreSQL service;
+- unit tests;
+- integration/e2e tests;
+- coverage validation.
+
+## Quality Bar
+
+Before merging a pull request:
+
+- TypeScript must compile successfully.
+- Lint must pass.
+- Tests must pass.
+- Coverage thresholds must be met.
+- Database migrations must be versioned.
+- No secrets may be committed.
+- Pull request must pass CI.
