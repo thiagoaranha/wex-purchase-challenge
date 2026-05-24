@@ -48,7 +48,7 @@ function formatScaledInteger(value: bigint, scale: number): string {
 }
 
 export class ExchangeRate {
-  private constructor(private readonly value_: bigint) { }
+  private constructor(private readonly value_: bigint) {}
 
   static create(value: string | number | bigint): ExchangeRate {
     if (value === undefined || value === null) {

@@ -20,12 +20,12 @@ describe('Money', () => {
   });
 
   it('should reject invalid, zero, and negative amounts', () => {
-    expect(() => Money.create(undefined as unknown as string, CurrencyCode.usd())).toThrow(
-      InvalidMoneyError,
-    );
-    expect(() => Money.create(null as unknown as string, CurrencyCode.usd())).toThrow(
-      InvalidMoneyError,
-    );
+    expect(() =>
+      Money.create(undefined as unknown as string, CurrencyCode.usd()),
+    ).toThrow(InvalidMoneyError);
+    expect(() =>
+      Money.create(null as unknown as string, CurrencyCode.usd()),
+    ).toThrow(InvalidMoneyError);
     expect(() => Money.create('   ', CurrencyCode.usd())).toThrow(
       InvalidMoneyError,
     );

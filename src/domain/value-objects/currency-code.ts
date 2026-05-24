@@ -1,7 +1,7 @@
 import { InvalidCurrencyCodeError } from '../errors/purchase-domain-errors';
 
 export class CurrencyCode {
-  private constructor(private readonly value_: string) { }
+  private constructor(private readonly value_: string) {}
 
   static create(value: string): CurrencyCode {
     const normalized = value.trim().toUpperCase();
