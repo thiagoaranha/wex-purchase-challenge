@@ -43,7 +43,7 @@ class FakeExchangeRateProvider implements ExchangeRateProvider {
     return this.supportedCurrencies.includes(currency);
   }
 
-  getRates(currency: string): ExchangeRateQuote[] {
+  async getRates(currency: string): Promise<ExchangeRateQuote[]> {
     return this.rates.filter((rate) => rate.currency === currency);
   }
 }

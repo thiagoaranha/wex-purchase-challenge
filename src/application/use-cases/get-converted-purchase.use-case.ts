@@ -31,7 +31,7 @@ export class GetConvertedPurchaseUseCase {
 
     const purchase = await this.findPurchase(input.purchaseId);
     const targetCurrency = CurrencyCode.create(input.targetCurrency);
-    const exchangeRateQuote = this.selectExchangeRate(
+    const exchangeRateQuote = await this.selectExchangeRate(
       purchase.transactionDate.value,
       targetCurrency.value,
     );
@@ -59,16 +59,15 @@ export class GetConvertedPurchaseUseCase {
     return purchase;
   }
 
-  private selectExchangeRate(
+  private async selectExchangeRate(
     purchaseDate: string,
     targetCurrency: string,
-  ): ExchangeRateQuote {
+  ): Promise<ExchangeRateQuote> {
     if (!this.exchangeRateProvider.supportsCurrency(targetCurrency)) {
       throw new UnsupportedExchangeRateCurrencyError(targetCurrency);
     }
 
-    const validRates = this.exchangeRateProvider
-      .getRates(targetCurrency)
+    const validRates = (await this.exchangeRateProvider.getRates(targetCurrency))
       .filter(
         (rate) =>
           rate.currency.toUpperCase() === targetCurrency &&

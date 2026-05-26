@@ -3,6 +3,7 @@ import { PurchaseController } from './purchase.controller';
 import { CreatePurchaseUseCase } from '../../../application/use-cases/create-purchase.use-case';
 import { GetConvertedPurchaseUseCase } from '../../../application/use-cases/get-converted-purchase.use-case';
 import { CreatePurchaseInputInterfaceDto } from './dtos/create-purchase-input-interface.dto';
+import { TreasuryApiUnavailableError } from '../../../infrastructure/treasury/treasury-api-unavailable.error';
 
 describe('PurchaseController', () => {
   let controller: PurchaseController;
@@ -90,6 +91,26 @@ describe('PurchaseController', () => {
         targetCurrency,
       });
       expect(result).toEqual(expectedUseCaseResult);
+    });
+
+    it('should propagate TreasuryApiUnavailableError so the exception filter can handle it', async () => {
+      getConvertedPurchaseUseCase.execute.mockRejectedValue(
+        new TreasuryApiUnavailableError(),
+      );
+
+      await expect(
+        controller.getConvertedPurchase('some-id', 'BRL'),
+      ).rejects.toThrow(TreasuryApiUnavailableError);
+    });
+
+    it('should propagate unknown errors for NestJS default exception handling', async () => {
+      getConvertedPurchaseUseCase.execute.mockRejectedValue(
+        new Error('Some unexpected error'),
+      );
+
+      await expect(
+        controller.getConvertedPurchase('some-id', 'BRL'),
+      ).rejects.toThrow('Some unexpected error');
     });
   });
 });

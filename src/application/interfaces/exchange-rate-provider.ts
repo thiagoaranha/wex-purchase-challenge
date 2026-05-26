@@ -6,5 +6,5 @@ export interface ExchangeRateQuote {
 
 export interface ExchangeRateProvider {
   supportsCurrency(currency: string): boolean;
-  getRates(currency: string): ExchangeRateQuote[];
+  getRates(currency: string): Promise<ExchangeRateQuote[]>;
 }

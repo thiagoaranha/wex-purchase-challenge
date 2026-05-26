@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseFilters } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreatePurchaseInputInterfaceDto } from './dtos/create-purchase-input-interface.dto';
 import { CreatePurchaseOutputInterfaceDto } from './dtos/create-purchase-output-interface.dto';
@@ -6,6 +6,7 @@ import { GetConvertedPurchaseOutputInterfaceDto } from './dtos/get-converted-pur
 import { CreatePurchaseUseCase } from '../../../application/use-cases/create-purchase.use-case';
 import { GetConvertedPurchaseUseCase } from '../../../application/use-cases/get-converted-purchase.use-case';
 import { CreatePurchaseInputDto } from '../../../application/dtos/create-purchase.dto';
+import { TreasuryUnavailableExceptionFilter } from './filters/treasury-unavailable-exception.filter';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -36,7 +37,9 @@ export class PurchaseController {
   }
 
   @Get(':id')
+  @UseFilters(TreasuryUnavailableExceptionFilter)
   @ApiResponse({ type: GetConvertedPurchaseOutputInterfaceDto, status: 200 })
+  @ApiResponse({ status: 503, description: 'Exchange rate provider is unavailable' })
   async getConvertedPurchase(
     @Param('id') purchaseId: string,
     @Query('targetCurrency') targetCurrency: string,
