@@ -17,6 +17,9 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the code
 COPY . .
 
+# Generate Prisma Client
+RUN pnpm prisma:generate
+
 # Build the project
 RUN pnpm run build
 
@@ -36,10 +39,18 @@ COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/pnpm-lock.yaml ./
 COPY --from=builder /usr/src/app/.npmrc ./
 COPY --from=builder /usr/src/app/dist ./dist
+# Copy the prisma folder to have schema and migrations
+COPY --from=builder /usr/src/app/prisma ./prisma
+# Copy the generated Prisma Client with engine binaries
+COPY --from=builder /usr/src/app/src/generated/prisma ./src/generated/prisma
+
 # Install only production dependencies
 RUN pnpm install --prod --frozen-lockfile
 
+# Install prisma CLI globally or locally to run migrations
+RUN pnpm add prisma
+
 EXPOSE 3000
 
-# Entry point
-CMD ["node", "dist/main"]
+# Entry point: run migrations and then start the API
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

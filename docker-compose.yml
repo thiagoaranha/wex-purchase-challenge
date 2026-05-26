@@ -19,22 +19,6 @@ services:
     networks:
       - wex-purchase-challenge-net
 
-  api:
-    build:
-      context: .
-      dockerfile: DockerFile
-    container_name: wex_api
-    environment:
-      PORT: 3000
-      DATABASE_URL: postgresql://wex_user:wex_password@postgres:5432/wex_db?schema=public
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - wex-purchase-challenge-net
-
 volumes:
   wex_pgdata:
     driver: local
@@ -42,3 +26,4 @@ volumes:
 networks:
   wex-purchase-challenge-net:
     driver: bridge
+
