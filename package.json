@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
+    "dev": "docker compose up -d --wait && prisma migrate dev && nest start --watch",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -27,10 +28,13 @@
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.4",
     "@nestjs/terminus": "^11.1.1",
     "@prisma/adapter-pg": "^6.0.0",
     "@prisma/client": "^6.0.0",
     "axios": "^1.16.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "dotenv": "^17.4.2",
     "pg": "^8.0.0",
     "reflect-metadata": "^0.2.2",
@@ -85,7 +89,8 @@
       "!**/*.module.ts",
       "!**/application/interfaces/**/*",
       "!**/infrastructure/prisma/index.ts",
-      "!**/generated/**/*"
+      "!**/generated/**/*",
+      "!**/*.dto.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
