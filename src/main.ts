@@ -7,11 +7,17 @@ import { json } from 'express';
 import helmet from 'helmet';
 import { AppConfig } from './shared/config/app-config';
 import { HttpExceptionFilter } from './interfaces/http/filters/http-exception.filter';
+import { PinoLoggerService } from './infrastructure/logging/pino-logger.service';
 
 const MAX_PAYLOAD_SIZE = '10kb';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  const logger = app.get(PinoLoggerService);
+  app.useLogger(logger);
 
   // ── Security headers ──────────────────────────────────────────────────────
   // Helmet sets sensible HTTP response headers (XSS, MIME-sniffing, HSTS,
