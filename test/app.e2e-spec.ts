@@ -26,6 +26,27 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/health/live (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/health/live')
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toHaveProperty('status', 'up');
+        expect(response.body).toHaveProperty('app', 'wex-purchase-api-node');
+      });
+  });
+
+  it('/health/ready (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/health/ready')
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toHaveProperty('status', 'ok');
+        expect(response.body.details).toHaveProperty('database');
+        expect(response.body.details.database).toHaveProperty('status', 'up');
+      });
+  });
+
   afterEach(async () => {
     await app.close();
   });
