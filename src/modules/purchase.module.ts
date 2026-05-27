@@ -9,9 +9,10 @@ import { GetConvertedPurchaseUseCase } from '../application/use-cases/get-conver
 import { SystemClock } from '../infrastructure/clock/system-clock';
 import { UuidGenerator } from '../infrastructure/id-generator/uuid-generator';
 import { TreasuryExchangeRateProvider } from '../infrastructure/treasury/treasury-exchange-rate.provider';
+import { AppConfig } from '../shared/config/app-config';
 
 @Module({
-  imports: [PrismaModule, HttpModule],
+  imports: [PrismaModule, HttpModule.register({ timeout: AppConfig.treasuryApiTimeoutMs })],
   controllers: [PurchaseController],
   providers: [
     SystemClock,
@@ -27,18 +28,16 @@ import { TreasuryExchangeRateProvider } from '../infrastructure/treasury/treasur
       useFactory: (
         repo: import('../application/interfaces/purchase-repository').PurchaseRepository,
         idGen: import('../application/interfaces/id-generator').IdGenerator,
-        clock: import('../application/interfaces/clock').Clock,
-      ) => new CreatePurchaseUseCase(repo, idGen, clock),
-      inject: [PURCHASE_REPOSITORY, UuidGenerator, SystemClock],
+      ) => new CreatePurchaseUseCase(repo, idGen),
+      inject: [PURCHASE_REPOSITORY, UuidGenerator],
     },
     {
       provide: GetConvertedPurchaseUseCase,
       useFactory: (
         repo: import('../application/interfaces/purchase-repository').PurchaseRepository,
         exchangeProvider: import('../application/interfaces/exchange-rate-provider').ExchangeRateProvider,
-        clock: import('../application/interfaces/clock').Clock,
-      ) => new GetConvertedPurchaseUseCase(repo, exchangeProvider, clock),
-      inject: [PURCHASE_REPOSITORY, TreasuryExchangeRateProvider, SystemClock],
+      ) => new GetConvertedPurchaseUseCase(repo, exchangeProvider),
+      inject: [PURCHASE_REPOSITORY, TreasuryExchangeRateProvider],
     },
   ],
   exports: [PURCHASE_REPOSITORY],

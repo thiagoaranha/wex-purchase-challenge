@@ -4,9 +4,10 @@ import { HttpModule } from '@nestjs/axios';
 import { HealthController } from '../interfaces/http/health/health.controller';
 import { PrismaHealthIndicator } from '../interfaces/http/health/prisma-health.indicator';
 import { PrismaModule } from './prisma.module';
+import { AppConfig } from '../shared/config/app-config';
 
 @Module({
-  imports: [TerminusModule, HttpModule, PrismaModule],
+  imports: [TerminusModule, HttpModule.register({ timeout: AppConfig.healthCheckTimeoutMs }), PrismaModule],
   controllers: [HealthController],
   providers: [PrismaHealthIndicator],
 })

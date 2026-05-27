@@ -10,7 +10,7 @@ import {
   UnsupportedExchangeRateCurrencyError,
 } from '../errors/exchange-rate-conversion.error';
 import { PurchaseNotFoundError } from '../errors/purchase-not-found.error';
-import { Clock } from '../interfaces/clock';
+
 import {
   ExchangeRateProvider,
   ExchangeRateQuote,
@@ -21,13 +21,11 @@ export class GetConvertedPurchaseUseCase {
   constructor(
     private readonly purchaseRepository: PurchaseRepository,
     private readonly exchangeRateProvider: ExchangeRateProvider,
-    private readonly clock: Clock,
   ) {}
 
   async execute(
     input: GetConvertedPurchaseInputDto,
   ): Promise<GetConvertedPurchaseOutputDto> {
-    void this.clock.now();
 
     const purchase = await this.findPurchase(input.purchaseId);
     const targetCurrency = CurrencyCode.create(input.targetCurrency);

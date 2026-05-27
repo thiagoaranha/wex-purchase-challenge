@@ -20,6 +20,17 @@ export const AppConfig = {
 
   rateLimitTtlMs: Number(process.env.RATE_LIMIT_TTL_MS) || 60_000,
   rateLimitMaxRequests: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 30,
+
+  // ── Treasury Fiscal Data API ───────────────────────────────────────────────
+  treasuryApiBaseUrl:
+    process.env.TREASURY_API_BASE_URL ??
+    'https://api.fiscaldata.treasury.gov/services/api/fiscal_service',
+  treasuryApiTimeoutMs: Number(process.env.TREASURY_API_TIMEOUT_MS) || 10_000,
+  treasuryCacheTtlMs: Number(process.env.TREASURY_CACHE_TTL_MS) || 300_000,
+
+  // ── Health check ───────────────────────────────────────────────────────────
+  healthCheckTimeoutMs: Number(process.env.HEALTH_CHECK_TIMEOUT_MS) || 5_000,
 } as const;
 
 export const isProduction = (): boolean => AppConfig.nodeEnv === 'production';
+

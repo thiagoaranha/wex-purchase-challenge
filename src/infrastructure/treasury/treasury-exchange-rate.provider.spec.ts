@@ -1,8 +1,10 @@
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
+import type { HttpService } from '@nestjs/axios';
 import { TreasuryExchangeRateProvider } from './treasury-exchange-rate.provider';
 import { TreasuryApiUnavailableError } from './treasury-api-unavailable.error';
 import { Clock } from '../../application/interfaces/clock';
+
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -77,14 +79,6 @@ function buildMockHttpService(
 // ---------------------------------------------------------------------------
 
 describe('TreasuryExchangeRateProvider', () => {
-  beforeEach(() => {
-    // Ensure process.env is clean for each test
-    process.env.TREASURY_API_BASE_URL =
-      'https://api.fiscaldata.treasury.gov/services/api/fiscal_service';
-    process.env.TREASURY_API_TIMEOUT_MS = '5000';
-    process.env.TREASURY_CACHE_TTL_MS = '300000';
-  });
-
   // -------------------------------------------------------------------------
   // supportsCurrency
   // -------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import { SystemClock } from '../clock/system-clock';
 import { TreasuryExchangeRateCache } from './treasury-exchange-rate.cache';
 import { TreasuryApiUnavailableError } from './treasury-api-unavailable.error';
 import isoTable from './data/iso4217.json';
+import { AppConfig } from '../../shared/config/app-config';
 
 // ---------------------------------------------------------------------------
 // Internal types matching the Treasury Fiscal Data API response schema
@@ -85,11 +86,9 @@ export class TreasuryExchangeRateProvider implements ExchangeRateProvider {
     private readonly httpService: HttpService,
     private readonly clock: SystemClock,
   ) {
-    this.baseUrl =
-      process.env.TREASURY_API_BASE_URL ??
-      'https://api.fiscaldata.treasury.gov/services/api/fiscal_service';
-    this.timeoutMs = Number(process.env.TREASURY_API_TIMEOUT_MS ?? 10_000);
-    const cacheTtlMs = Number(process.env.TREASURY_CACHE_TTL_MS ?? 300_000);
+    this.baseUrl = AppConfig.treasuryApiBaseUrl;
+    this.timeoutMs = AppConfig.treasuryApiTimeoutMs;
+    const cacheTtlMs = AppConfig.treasuryCacheTtlMs;
 
     this.cache = new TreasuryExchangeRateCache(cacheTtlMs);
 

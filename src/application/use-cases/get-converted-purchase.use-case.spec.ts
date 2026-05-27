@@ -5,7 +5,6 @@ import { Money } from '../../domain/value-objects/money';
 import { PurchaseId } from '../../domain/value-objects/purchase-id';
 import { TransactionDate } from '../../domain/value-objects/transaction-date';
 import { GetConvertedPurchaseUseCase } from './get-converted-purchase.use-case';
-import { Clock } from '../interfaces/clock';
 import {
   ExchangeRateProvider,
   ExchangeRateQuote,
@@ -31,11 +30,7 @@ class FakePurchaseRepository implements PurchaseRepository {
   }
 }
 
-class FakeClock implements Clock {
-  now(): Date {
-    return new Date('2026-05-24T00:00:00.000Z');
-  }
-}
+
 
 class FakeExchangeRateProvider implements ExchangeRateProvider {
   constructor(
@@ -74,7 +69,6 @@ describe('GetConvertedPurchaseUseCase', () => {
           { currency: 'EUR', date: '2026-05-22', rate: '0.9100' },
         ],
       ),
-      new FakeClock(),
     );
 
     const result = await useCase.execute({
@@ -103,7 +97,6 @@ describe('GetConvertedPurchaseUseCase', () => {
           { currency: 'EUR', date: '2026-05-18', rate: '0.9000' },
         ],
       ),
-      new FakeClock(),
     );
 
     const result = await useCase.execute({
@@ -121,7 +114,6 @@ describe('GetConvertedPurchaseUseCase', () => {
         ['EUR'],
         [{ currency: 'EUR', date: '2025-11-22', rate: '0.9000' }],
       ),
-      new FakeClock(),
     );
 
     await expect(
@@ -136,7 +128,6 @@ describe('GetConvertedPurchaseUseCase', () => {
     const useCase = new GetConvertedPurchaseUseCase(
       new FakePurchaseRepository([buildPurchase()]),
       new FakeExchangeRateProvider(['EUR'], []),
-      new FakeClock(),
     );
 
     await expect(
@@ -151,7 +142,6 @@ describe('GetConvertedPurchaseUseCase', () => {
     const useCase = new GetConvertedPurchaseUseCase(
       new FakePurchaseRepository([buildPurchase()]),
       new FakeExchangeRateProvider(['USD'], []),
-      new FakeClock(),
     );
 
     await expect(
@@ -166,7 +156,6 @@ describe('GetConvertedPurchaseUseCase', () => {
     const useCase = new GetConvertedPurchaseUseCase(
       new FakePurchaseRepository([]),
       new FakeExchangeRateProvider(['EUR'], []),
-      new FakeClock(),
     );
 
     await expect(
@@ -190,7 +179,6 @@ describe('GetConvertedPurchaseUseCase', () => {
         ['EUR'],
         [{ currency: 'EUR', date: '2026-05-23', rate: '0.0050' }],
       ),
-      new FakeClock(),
     );
 
     const result = await useCase.execute({

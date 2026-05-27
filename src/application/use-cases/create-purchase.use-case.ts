@@ -8,7 +8,6 @@ import {
   CreatePurchaseInputDto,
   CreatePurchaseOutputDto,
 } from '../dtos/create-purchase.dto';
-import { Clock } from '../interfaces/clock';
 import { IdGenerator } from '../interfaces/id-generator';
 import { PurchaseRepository } from '../interfaces/purchase-repository';
 
@@ -16,13 +15,11 @@ export class CreatePurchaseUseCase {
   constructor(
     private readonly purchaseRepository: PurchaseRepository,
     private readonly idGenerator: IdGenerator,
-    private readonly clock: Clock,
   ) {}
 
   async execute(
     input: CreatePurchaseInputDto,
   ): Promise<CreatePurchaseOutputDto> {
-    void this.clock.now();
 
     const purchase = Purchase.create({
       id: PurchaseId.create(this.idGenerator.generate()),

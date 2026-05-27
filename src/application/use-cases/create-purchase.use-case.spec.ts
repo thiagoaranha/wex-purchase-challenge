@@ -1,5 +1,4 @@
 import { CreatePurchaseUseCase } from './create-purchase.use-case';
-import { Clock } from '../interfaces/clock';
 import { IdGenerator } from '../interfaces/id-generator';
 import { PurchaseRepository } from '../interfaces/purchase-repository';
 import { Purchase } from '../../domain/entities/purchase';
@@ -25,11 +24,6 @@ class FakeIdGenerator implements IdGenerator {
   }
 }
 
-class FakeClock implements Clock {
-  now(): Date {
-    return new Date('2026-05-24T00:00:00.000Z');
-  }
-}
 
 describe('CreatePurchaseUseCase', () => {
   it('should create and persist a purchase using the provided id generator', async () => {
@@ -37,7 +31,6 @@ describe('CreatePurchaseUseCase', () => {
     const useCase = new CreatePurchaseUseCase(
       repository,
       new FakeIdGenerator('8c5ed6b1-8e1d-4c96-8dc0-6e10a05cb4c1'),
-      new FakeClock(),
     );
 
     const result = await useCase.execute({
@@ -60,7 +53,6 @@ describe('CreatePurchaseUseCase', () => {
     const useCase = new CreatePurchaseUseCase(
       repository,
       new FakeIdGenerator('8c5ed6b1-8e1d-4c96-8dc0-6e10a05cb4c1'),
-      new FakeClock(),
     );
 
     const result = await useCase.execute({
