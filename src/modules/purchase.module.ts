@@ -12,7 +12,10 @@ import { TreasuryExchangeRateProvider } from '../infrastructure/treasury/treasur
 import { AppConfig } from '../shared/config/app-config';
 
 @Module({
-  imports: [PrismaModule, HttpModule.register({ timeout: AppConfig.treasuryApiTimeoutMs })],
+  imports: [
+    PrismaModule,
+    HttpModule.register({ timeout: AppConfig.treasuryApiTimeoutMs }),
+  ],
   controllers: [PurchaseController],
   providers: [
     SystemClock,

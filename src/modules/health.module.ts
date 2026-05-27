@@ -7,7 +7,11 @@ import { PrismaModule } from './prisma.module';
 import { AppConfig } from '../shared/config/app-config';
 
 @Module({
-  imports: [TerminusModule, HttpModule.register({ timeout: AppConfig.healthCheckTimeoutMs }), PrismaModule],
+  imports: [
+    TerminusModule,
+    HttpModule.register({ timeout: AppConfig.healthCheckTimeoutMs }),
+    PrismaModule,
+  ],
   controllers: [HealthController],
   providers: [PrismaHealthIndicator],
 })

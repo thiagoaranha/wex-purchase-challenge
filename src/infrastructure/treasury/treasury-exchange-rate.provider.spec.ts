@@ -5,7 +5,6 @@ import { TreasuryExchangeRateProvider } from './treasury-exchange-rate.provider'
 import { TreasuryApiUnavailableError } from './treasury-api-unavailable.error';
 import { Clock } from '../../application/interfaces/clock';
 
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------

@@ -26,7 +26,6 @@ export class GetConvertedPurchaseUseCase {
   async execute(
     input: GetConvertedPurchaseInputDto,
   ): Promise<GetConvertedPurchaseOutputDto> {
-
     const purchase = await this.findPurchase(input.purchaseId);
     const targetCurrency = CurrencyCode.create(input.targetCurrency);
     const exchangeRateQuote = await this.selectExchangeRate(

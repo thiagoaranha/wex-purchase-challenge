@@ -24,7 +24,6 @@ class FakeIdGenerator implements IdGenerator {
   }
 }
 
-
 describe('CreatePurchaseUseCase', () => {
   it('should create and persist a purchase using the provided id generator', async () => {
     const repository = new FakePurchaseRepository();

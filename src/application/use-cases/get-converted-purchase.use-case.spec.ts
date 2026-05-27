@@ -30,8 +30,6 @@ class FakePurchaseRepository implements PurchaseRepository {
   }
 }
 
-
-
 class FakeExchangeRateProvider implements ExchangeRateProvider {
   constructor(
     private readonly supportedCurrencies: string[],

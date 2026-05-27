@@ -33,4 +33,3 @@ export const AppConfig = {
 } as const;
 
 export const isProduction = (): boolean => AppConfig.nodeEnv === 'production';
-

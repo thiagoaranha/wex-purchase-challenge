@@ -32,13 +32,15 @@ function captureJsonBody(host: ArgumentsHost): Record<string, unknown> {
     status: jest.Mock<{ json: jest.Mock }>;
   }>();
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  return response.status.mock.results[0]?.value.json.mock
-    .calls[0][0] as Record<string, unknown>;
+  return response.status.mock.results[0]?.value.json.mock.calls[0][0] as Record<
+    string,
+    unknown
+  >;
 }
 
 function captureStatusCode(host: ArgumentsHost): number {
   const response = host.switchToHttp().getResponse<{ status: jest.Mock }>();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   return response.status.mock.calls[0][0] as number;
 }
 

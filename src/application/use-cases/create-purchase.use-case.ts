@@ -20,7 +20,6 @@ export class CreatePurchaseUseCase {
   async execute(
     input: CreatePurchaseInputDto,
   ): Promise<CreatePurchaseOutputDto> {
-
     const purchase = Purchase.create({
       id: PurchaseId.create(this.idGenerator.generate()),
       description: Description.create(input.description),

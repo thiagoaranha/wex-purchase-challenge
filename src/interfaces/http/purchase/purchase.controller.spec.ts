@@ -75,7 +75,10 @@ describe('PurchaseController', () => {
     });
 
     it('should propagate DomainError so the exception filter can handle it', async () => {
-      const domainError = new InvalidDescriptionError('too_long', 'a'.repeat(51));
+      const domainError = new InvalidDescriptionError(
+        'too_long',
+        'a'.repeat(51),
+      );
       createPurchaseUseCase.execute.mockRejectedValue(domainError);
 
       await expect(
