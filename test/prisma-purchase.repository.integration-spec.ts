@@ -23,6 +23,17 @@ function buildTestDatabaseUrl(): string {
 }
 
 function migrateDeploy(databaseUrl: string): void {
+  if (process.env.CI) {
+    execSync('pnpm prisma migrate deploy', {
+      env: {
+        ...process.env,
+        DATABASE_URL: databaseUrl,
+      },
+      stdio: 'inherit',
+    });
+    return;
+  }
+
   const schemaEngineSource = `${process.cwd()}\\node_modules\\@prisma\\engines\\node_modules\\.cache\\prisma\\master\\c2990dca591cba766e3b7ef5d9e8a84796e47ab7\\windows\\schema-engine`;
   const schemaEngineBinary =
     'C:\\Users\\thiag\\.codex\\memories\\prisma\\schema-engine.exe';

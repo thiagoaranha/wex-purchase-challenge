@@ -25,7 +25,8 @@ async function bootstrap() {
   // interactive docs remain functional in non-production environments.
   app.use(
     helmet({
-      contentSecurityPolicy: AppConfig.nodeEnv === 'production' ? undefined : false,
+      contentSecurityPolicy:
+        AppConfig.nodeEnv === 'production' ? undefined : false,
     }),
   );
 
@@ -66,4 +67,3 @@ async function bootstrap() {
 }
 
 void bootstrap();
-

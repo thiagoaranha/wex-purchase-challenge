@@ -3,7 +3,9 @@ import { ExchangeRateQuote } from '../../application/interfaces/exchange-rate-pr
 
 const ONE_MINUTE_MS = 60_000;
 
-function buildQuote(overrides: Partial<ExchangeRateQuote> = {}): ExchangeRateQuote {
+function buildQuote(
+  overrides: Partial<ExchangeRateQuote> = {},
+): ExchangeRateQuote {
   return {
     currency: 'Brazil-Real',
     date: '2025-03-31',

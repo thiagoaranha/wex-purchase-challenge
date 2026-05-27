@@ -7,12 +7,13 @@ import { Purchase } from '../../domain/entities/purchase';
 class FakePurchaseRepository implements PurchaseRepository {
   private readonly purchases = new Map<string, Purchase>();
 
-  async save(purchase: Purchase): Promise<void> {
+  save(purchase: Purchase): Promise<void> {
     this.purchases.set(purchase.id.value, purchase);
+    return Promise.resolve();
   }
 
-  async findById(id: string): Promise<Purchase | null> {
-    return this.purchases.get(id) ?? null;
+  findById(id: string): Promise<Purchase | null> {
+    return Promise.resolve(this.purchases.get(id) ?? null);
   }
 }
 

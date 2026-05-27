@@ -33,8 +33,8 @@ describe('PurchaseController', () => {
     }).compile();
 
     controller = module.get<PurchaseController>(PurchaseController);
-    createPurchaseUseCase = module.get(CreatePurchaseUseCase) as any;
-    getConvertedPurchaseUseCase = module.get(GetConvertedPurchaseUseCase) as any;
+    createPurchaseUseCase = module.get(CreatePurchaseUseCase);
+    getConvertedPurchaseUseCase = module.get(GetConvertedPurchaseUseCase);
   });
 
   it('should be defined', () => {
@@ -54,11 +54,12 @@ describe('PurchaseController', () => {
         description: 'Test description',
         transactionDate: '2023-01-01',
         purchaseAmountUsd: '100.00',
-      } as any;
+      };
       createPurchaseUseCase.execute.mockResolvedValue(expectedUseCaseResult);
 
       const result = await controller.createPurchase(purchaseDto);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(createPurchaseUseCase.execute).toHaveBeenCalledWith({
         description: purchaseDto.description,
         transactionDate: purchaseDto.transactionDate,
@@ -80,12 +81,15 @@ describe('PurchaseController', () => {
         targetCurrency: 'BRL',
         exchangeRate: '5.5',
         convertedAmount: '550.00',
-      } as any;
+      };
 
-      getConvertedPurchaseUseCase.execute.mockResolvedValue(expectedUseCaseResult);
+      getConvertedPurchaseUseCase.execute.mockResolvedValue(
+        expectedUseCaseResult,
+      );
 
       const result = await controller.getConvertedPurchase(id, targetCurrency);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(getConvertedPurchaseUseCase.execute).toHaveBeenCalledWith({
         purchaseId: id,
         targetCurrency,

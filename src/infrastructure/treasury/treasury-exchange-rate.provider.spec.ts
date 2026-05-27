@@ -14,8 +14,8 @@ function buildAxiosResponse<T>(data: T): AxiosResponse<T> {
     status: 200,
     statusText: 'OK',
     headers: {},
-    config: { headers: {} } as any,
-  };
+    config: { headers: {} } as unknown as AxiosResponse['config'],
+  } as AxiosResponse<T>;
 }
 
 /** Minimal availability response listing a few countries */
@@ -93,7 +93,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return true for an ISO code present in the ISO table', () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -104,7 +104,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return false for an ISO code not in the ISO table', () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -114,7 +114,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return false for USD (not present in Treasury dataset)', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -127,7 +127,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return true for BRL after lazy init confirms Treasury has it', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -140,7 +140,7 @@ describe('TreasuryExchangeRateProvider', () => {
       // THB (Thailand) is NOT in the mocked availability response
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -158,7 +158,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return normalised ExchangeRateQuote[] with ISO code', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -173,15 +173,15 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should serve subsequent calls from the in-memory cache without extra HTTP calls', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
       await provider.getRates('BRL'); // cold call: 1 availability + 1 rate = 2 HTTP calls
-      const callsAfterFirst = (httpService.get as jest.Mock).mock.calls.length;
+      const callsAfterFirst = httpService.get.mock.calls.length;
 
       await provider.getRates('BRL'); // should be served from cache
-      const callsAfterSecond = (httpService.get as jest.Mock).mock.calls.length;
+      const callsAfterSecond = httpService.get.mock.calls.length;
 
       expect(callsAfterSecond).toBe(callsAfterFirst);
     });
@@ -189,7 +189,7 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should return an empty array when the currency is not in the Treasury supported list', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -206,12 +206,14 @@ describe('TreasuryExchangeRateProvider', () => {
       const httpService = {
         get: jest.fn().mockImplementation(() => {
           callCount += 1;
-          return of(callCount === 1 ? buildAvailabilityResponse() : emptyRateResponse);
+          return of(
+            callCount === 1 ? buildAvailabilityResponse() : emptyRateResponse,
+          );
         }),
       };
 
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -222,14 +224,14 @@ describe('TreasuryExchangeRateProvider', () => {
     it('should include country filter to disambiguate currencies sharing the same name', async () => {
       const httpService = buildMockHttpService();
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
       await provider.getRates('BRL');
 
-      const rateCalls = (httpService.get as jest.Mock).mock.calls.filter(
-        ([, config]) =>
+      const rateCalls = httpService.get.mock.calls.filter(
+        ([, config]: [string, { params?: { filter?: string } } | undefined]) =>
           config?.params?.filter?.includes('country:eq:Brazil') &&
           config?.params?.filter?.includes('currency:eq:Real'),
       );
@@ -258,7 +260,7 @@ describe('TreasuryExchangeRateProvider', () => {
       };
 
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -284,7 +286,7 @@ describe('TreasuryExchangeRateProvider', () => {
       };
 
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 
@@ -302,7 +304,7 @@ describe('TreasuryExchangeRateProvider', () => {
       };
 
       const provider = new TreasuryExchangeRateProvider(
-        httpService as any,
+        httpService as unknown as HttpService,
         new FakeClock(),
       );
 

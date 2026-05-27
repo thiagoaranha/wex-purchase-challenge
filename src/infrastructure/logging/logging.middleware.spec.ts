@@ -45,7 +45,11 @@ describe('LoggingMiddleware', () => {
       const correlationId = correlationIdStorage.getStore();
       expect(correlationId).toBeDefined();
       expect(typeof correlationId).toBe('string');
-      expect(res.setHeader).toHaveBeenCalledWith('x-correlation-id', correlationId);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'x-correlation-id',
+        correlationId,
+      );
       done();
     });
 
@@ -67,7 +71,11 @@ describe('LoggingMiddleware', () => {
     const next = jest.fn(() => {
       const correlationId = correlationIdStorage.getStore();
       expect(correlationId).toBe('client-correlation-id');
-      expect(res.setHeader).toHaveBeenCalledWith('x-correlation-id', 'client-correlation-id');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'x-correlation-id',
+        'client-correlation-id',
+      );
       done();
     });
 
@@ -86,7 +94,7 @@ describe('LoggingMiddleware', () => {
     const res = {
       setHeader: jest.fn(),
       statusCode: 200,
-      on: jest.fn((event, callback) => {
+      on: jest.fn((event: string, callback: () => void) => {
         if (event === 'finish') {
           finishCallback = callback;
         }
@@ -99,6 +107,7 @@ describe('LoggingMiddleware', () => {
 
     finishCallback();
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(loggerService.log).toHaveBeenCalledWith(
       expect.stringContaining('GET /test 200 -'),
       'HTTP',

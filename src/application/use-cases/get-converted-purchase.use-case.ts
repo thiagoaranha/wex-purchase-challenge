@@ -67,7 +67,9 @@ export class GetConvertedPurchaseUseCase {
       throw new UnsupportedExchangeRateCurrencyError(targetCurrency);
     }
 
-    const validRates = (await this.exchangeRateProvider.getRates(targetCurrency))
+    const validRates = (
+      await this.exchangeRateProvider.getRates(targetCurrency)
+    )
       .filter(
         (rate) =>
           rate.currency.toUpperCase() === targetCurrency &&

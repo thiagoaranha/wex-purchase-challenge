@@ -20,10 +20,14 @@ import { PurchaseNotFoundError } from '../errors/purchase-not-found.error';
 class FakePurchaseRepository implements PurchaseRepository {
   constructor(private readonly purchases: Purchase[]) {}
 
-  async save(): Promise<void> {}
+  save(): Promise<void> {
+    return Promise.resolve();
+  }
 
-  async findById(id: string): Promise<Purchase | null> {
-    return this.purchases.find((purchase) => purchase.id.value === id) ?? null;
+  findById(id: string): Promise<Purchase | null> {
+    return Promise.resolve(
+      this.purchases.find((purchase) => purchase.id.value === id) ?? null,
+    );
   }
 }
 
@@ -43,8 +47,10 @@ class FakeExchangeRateProvider implements ExchangeRateProvider {
     return this.supportedCurrencies.includes(currency);
   }
 
-  async getRates(currency: string): Promise<ExchangeRateQuote[]> {
-    return this.rates.filter((rate) => rate.currency === currency);
+  getRates(currency: string): Promise<ExchangeRateQuote[]> {
+    return Promise.resolve(
+      this.rates.filter((rate) => rate.currency === currency),
+    );
   }
 }
 
