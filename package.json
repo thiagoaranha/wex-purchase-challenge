@@ -98,6 +98,14 @@
       "!**/shared/config/**/*"
     ],
     "coverageDirectory": "../coverage",
+    "coverageThreshold": {
+      "global": {
+        "statements": 85,
+        "branches": 80,
+        "functions": 85,
+        "lines": 85
+      }
+    },
     "testEnvironment": "node"
   }
 }
