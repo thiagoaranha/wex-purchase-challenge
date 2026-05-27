@@ -10,8 +10,14 @@ import { PrismaPurchaseRepository } from './prisma-purchase.repository';
 describe('PrismaPurchaseRepository', () => {
   const mockPrisma = {
     purchase: {
-      upsert: jest.fn(),
-      findUnique: jest.fn(),
+      upsert: jest.fn<
+        Prisma.Prisma__PurchaseClient<any, any, any>,
+        [Prisma.PurchaseUpsertArgs<any>]
+      >(),
+      findUnique: jest.fn<
+        Prisma.Prisma__PurchaseClient<any, any, any>,
+        [Prisma.PurchaseFindUniqueArgs<any>]
+      >(),
     },
   };
 
@@ -43,16 +49,23 @@ describe('PrismaPurchaseRepository', () => {
         id: purchase.id.value,
         description: purchase.description.value,
         transactionDate: purchase.transactionDate.toDate(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         purchaseAmountUsd: expect.any(Prisma.Decimal),
       },
       update: {
         description: purchase.description.value,
         transactionDate: purchase.transactionDate.toDate(),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         purchaseAmountUsd: expect.any(Prisma.Decimal),
       },
     });
 
-    const [args] = mockPrisma.purchase.upsert.mock.calls[0];
+    const [args] = mockPrisma.purchase.upsert.mock.calls[0] as unknown as [
+      {
+        create: { purchaseAmountUsd: Prisma.Decimal };
+        update: { purchaseAmountUsd: Prisma.Decimal };
+      },
+    ];
 
     expect(args.create.purchaseAmountUsd.toString()).toBe('125.49');
     expect(args.update.purchaseAmountUsd.toString()).toBe('125.49');

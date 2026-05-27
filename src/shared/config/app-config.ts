@@ -12,7 +12,9 @@ export const AppConfig = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: Number(process.env.PORT) || 3000,
 
-  corsAllowedOrigins: (process.env.CORS_ALLOWED_ORIGINS ?? 'http://localhost:3000')
+  corsAllowedOrigins: (
+    process.env.CORS_ALLOWED_ORIGINS ?? 'http://localhost:3000'
+  )
     .split(',')
     .map((origin) => origin.trim()),
 

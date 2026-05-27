@@ -16,8 +16,13 @@ function buildMockHost(method = 'GET', path = '/purchase'): ArgumentsHost {
 }
 
 function getJsonBody(host: ArgumentsHost): Record<string, unknown> {
-  const response = host.switchToHttp().getResponse<any>();
-  return response.status.mock.results[0].value.json.mock.calls[0][0];
+  const response = host.switchToHttp().getResponse<{
+    status: jest.Mock<{ json: jest.Mock }>;
+  }>();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+  const jsonBody = response.status.mock.results[0].value.json.mock.calls[0][0];
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return jsonBody;
 }
 
 describe('HttpExceptionFilter', () => {
@@ -43,7 +48,7 @@ describe('HttpExceptionFilter', () => {
 
       filter.catch(exception, host);
 
-      const response = host.switchToHttp().getResponse<any>();
+      const response = host.switchToHttp().getResponse<{ status: jest.Mock }>();
       expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
     });
   });
@@ -51,7 +56,10 @@ describe('HttpExceptionFilter', () => {
   describe('response body — string exception message', () => {
     it('should wrap a plain string response into { statusCode, message }', () => {
       const host = buildMockHost();
-      const exception = new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+      const exception = new HttpException(
+        'Bad Request',
+        HttpStatus.BAD_REQUEST,
+      );
 
       filter.catch(exception, host);
 
@@ -66,7 +74,11 @@ describe('HttpExceptionFilter', () => {
     it('should spread an object response directly into the body', () => {
       const host = buildMockHost();
       const exception = new HttpException(
-        { statusCode: 422, message: ['field is required'], error: 'Unprocessable Entity' },
+        {
+          statusCode: 422,
+          message: ['field is required'],
+          error: 'Unprocessable Entity',
+        },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
 
@@ -86,7 +98,11 @@ describe('HttpExceptionFilter', () => {
 
       const host = buildMockHost();
       const exception = new HttpException(
-        { statusCode: 500, message: 'Internal error', stack: 'Error\n  at ...' },
+        {
+          statusCode: 500,
+          message: 'Internal error',
+          stack: 'Error\n  at ...',
+        },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
@@ -100,7 +116,11 @@ describe('HttpExceptionFilter', () => {
 
       const host = buildMockHost();
       const exception = new HttpException(
-        { statusCode: 500, message: 'Internal error', stack: 'Error\n  at ...' },
+        {
+          statusCode: 500,
+          message: 'Internal error',
+          stack: 'Error\n  at ...',
+        },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
@@ -113,8 +133,14 @@ describe('HttpExceptionFilter', () => {
   describe('logging behaviour', () => {
     it('should call logger.error for 5xx exceptions', () => {
       const host = buildMockHost('POST', '/purchase');
-      const exception = new HttpException('Internal error', HttpStatus.INTERNAL_SERVER_ERROR);
-      const loggerErrorSpy = jest.spyOn((filter as any).logger, 'error').mockImplementation();
+      const exception = new HttpException(
+        'Internal error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      const loggerErrorSpy = jest
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        .spyOn((filter as any).logger, 'error')
+        .mockImplementation();
 
       filter.catch(exception, host);
 
@@ -124,7 +150,10 @@ describe('HttpExceptionFilter', () => {
     it('should call logger.warn for 4xx exceptions', () => {
       const host = buildMockHost('GET', '/purchase/abc');
       const exception = new HttpException('Not found', HttpStatus.NOT_FOUND);
-      const loggerWarnSpy = jest.spyOn((filter as any).logger, 'warn').mockImplementation();
+      const loggerWarnSpy = jest
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        .spyOn((filter as any).logger, 'warn')
+        .mockImplementation();
 
       filter.catch(exception, host);
 
@@ -133,8 +162,16 @@ describe('HttpExceptionFilter', () => {
 
     it('should not log logger.error for 4xx exceptions', () => {
       const host = buildMockHost();
-      const exception = new HttpException('Bad request', HttpStatus.BAD_REQUEST);
-      const loggerErrorSpy = jest.spyOn((filter as any).logger, 'error').mockImplementation();
+      const exception = new HttpException(
+        'Bad request',
+        HttpStatus.BAD_REQUEST,
+      );
+      const loggerErrorSpy = jest
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        .spyOn((filter as any).logger, 'error')
+        .mockImplementation();
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       jest.spyOn((filter as any).logger, 'warn').mockImplementation();
 
       filter.catch(exception, host);

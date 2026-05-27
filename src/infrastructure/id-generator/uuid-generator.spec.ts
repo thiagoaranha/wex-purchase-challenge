@@ -14,7 +14,8 @@ describe('UuidGenerator', () => {
   it('should generate a valid UUID', () => {
     const result = generator.generate();
     // basic regex for uuid v4
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     expect(result).toMatch(uuidRegex);
   });
 

@@ -25,17 +25,29 @@ import pino from 'pino';
 
 describe('PinoLoggerService', () => {
   let service: PinoLoggerService;
-  let mockPinoInstance: any;
+  let mockPinoInstance: jest.Mocked<{
+    info: jest.Mock;
+    error: jest.Mock;
+    warn: jest.Mock;
+    debug: jest.Mock;
+    trace: jest.Mock;
+  }>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [PinoLoggerService],
     }).compile();
 
     service = module.get<PinoLoggerService>(PinoLoggerService);
-    mockPinoInstance = (pino as any)();
+    mockPinoInstance = pino() as unknown as jest.Mocked<{
+      info: jest.Mock;
+      error: jest.Mock;
+      warn: jest.Mock;
+      debug: jest.Mock;
+      trace: jest.Mock;
+    }>;
   });
 
   it('should be defined', () => {
@@ -68,8 +80,8 @@ describe('PinoLoggerService', () => {
         context: 'TestContext',
         err: expect.objectContaining({
           message: 'Some database error',
-        }),
-      }),
+        }) as unknown,
+      }) as unknown,
       'Some database error',
     );
   });
@@ -118,7 +130,12 @@ describe('PinoLoggerService', () => {
       const extra1 = { a: 1 };
       const extra2 = { b: 2 };
 
-      service.log('message with multiple extras', extra1, extra2, 'TestContext');
+      service.log(
+        'message with multiple extras',
+        extra1,
+        extra2,
+        'TestContext',
+      );
 
       expect(mockPinoInstance.info).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -180,4 +197,3 @@ describe('PinoLoggerService', () => {
     });
   });
 });
-

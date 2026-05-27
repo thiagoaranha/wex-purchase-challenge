@@ -5,8 +5,10 @@ import { PrismaHealthIndicator } from './prisma-health.indicator';
 
 describe('HealthController', () => {
   let controller: HealthController;
-  let healthCheckService: any;
-  let prismaHealthIndicator: any;
+  let healthCheckService: jest.Mocked<Pick<HealthCheckService, 'check'>>;
+  let prismaHealthIndicator: jest.Mocked<
+    Pick<PrismaHealthIndicator, 'isHealthy'>
+  >;
 
   beforeEach(async () => {
     healthCheckService = {
@@ -53,15 +55,20 @@ describe('HealthController', () => {
 
   it('should call check with prisma indicator on ready endpoint', async () => {
     healthCheckService.check.mockResolvedValue({ status: 'ok' });
-    prismaHealthIndicator.isHealthy.mockResolvedValue({ database: { status: 'up' } });
+    prismaHealthIndicator.isHealthy.mockResolvedValue({
+      database: { status: 'up' },
+    });
 
     const result = await controller.ready();
 
     expect(result).toEqual({ status: 'ok' });
-    expect(healthCheckService.check).toHaveBeenCalledWith([expect.any(Function)]);
-    
+    expect(healthCheckService.check).toHaveBeenCalledWith([
+      expect.any(Function),
+    ]);
+
     // Execute the callback passed to healthCheckService.check
-    const checkFn = healthCheckService.check.mock.calls[0][0][0];
+    const checkFn = healthCheckService.check.mock
+      .calls[0][0][0] as () => Promise<unknown>;
     await checkFn();
     expect(prismaHealthIndicator.isHealthy).toHaveBeenCalledWith('database');
   });

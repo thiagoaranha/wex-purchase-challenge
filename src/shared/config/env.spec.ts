@@ -15,6 +15,7 @@ describe('env config', () => {
     }));
 
     jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('./env');
     });
 

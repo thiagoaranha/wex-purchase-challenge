@@ -5,7 +5,7 @@ import { HealthCheckError } from '@nestjs/terminus';
 
 describe('PrismaHealthIndicator', () => {
   let indicator: PrismaHealthIndicator;
-  let prismaService: any;
+  let prismaService: jest.Mocked<Pick<PrismaService, '$queryRawUnsafe'>>;
 
   beforeEach(async () => {
     prismaService = {
@@ -39,34 +39,58 @@ describe('PrismaHealthIndicator', () => {
   });
 
   it('should throw HealthCheckError if query fails', async () => {
-    prismaService.$queryRawUnsafe.mockRejectedValue(new Error('Connection failed'));
+    prismaService.$queryRawUnsafe.mockRejectedValue(
+      new Error('Connection failed'),
+    );
 
-    await expect(indicator.isHealthy('database')).rejects.toThrow(HealthCheckError);
+    await expect(indicator.isHealthy('database')).rejects.toThrow(
+      HealthCheckError,
+    );
   });
 
   it('should throw HealthCheckError with custom message containing connection error code', async () => {
-    const prismaError: any = new Error('Some error');
+    const prismaError = new Error('Some error') as Error & { code?: string };
     prismaError.code = 'ECONNREFUSED';
     prismaService.$queryRawUnsafe.mockRejectedValue(prismaError);
 
-    await expect(indicator.isHealthy('database')).rejects.toThrow(HealthCheckError);
+    await expect(indicator.isHealthy('database')).rejects.toThrow(
+      HealthCheckError,
+    );
 
     try {
       await indicator.isHealthy('database');
-    } catch (err: any) {
-      expect(err.causes.database.message).toBe("Database connection failed (ECONNREFUSED)");
+    } catch (err: unknown) {
+      if (err instanceof HealthCheckError) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(err.causes?.database?.message).toBe(
+          'Database connection failed (ECONNREFUSED)',
+        );
+      } else {
+        throw err;
+      }
     }
   });
 
   it('should throw HealthCheckError with UNKNOWN code if no code is present on error', async () => {
-    prismaService.$queryRawUnsafe.mockRejectedValue(new Error('Generic failure'));
+    prismaService.$queryRawUnsafe.mockRejectedValue(
+      new Error('Generic failure'),
+    );
 
-    await expect(indicator.isHealthy('database')).rejects.toThrow(HealthCheckError);
+    await expect(indicator.isHealthy('database')).rejects.toThrow(
+      HealthCheckError,
+    );
 
     try {
       await indicator.isHealthy('database');
-    } catch (err: any) {
-      expect(err.causes.database.message).toBe("Database connection failed (UNKNOWN)");
+    } catch (err: unknown) {
+      if (err instanceof HealthCheckError) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        expect(err.causes?.database?.message).toBe(
+          'Database connection failed (UNKNOWN)',
+        );
+      } else {
+        throw err;
+      }
     }
   });
 });

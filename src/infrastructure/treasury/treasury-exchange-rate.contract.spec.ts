@@ -1,8 +1,8 @@
 import { of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { TreasuryExchangeRateProvider } from './treasury-exchange-rate.provider';
-import { ExchangeRateQuote } from '../../application/interfaces/exchange-rate-provider';
 import { Clock } from '../../application/interfaces/clock';
+import { HttpService } from '@nestjs/axios';
 import brlFixture from './__fixtures__/rates_of_exchange_brl_2026Q1.json';
 
 /**
@@ -22,7 +22,7 @@ function buildAvailabilityResponseFromFixture() {
     status: 200,
     statusText: 'OK',
     headers: {},
-    config: { headers: {} } as any,
+    config: { headers: {} } as unknown as AxiosResponse['config'],
   } as AxiosResponse;
 }
 
@@ -32,7 +32,7 @@ function buildRateResponseFromFixture() {
     status: 200,
     statusText: 'OK',
     headers: {},
-    config: { headers: {} } as any,
+    config: { headers: {} } as unknown as AxiosResponse['config'],
   } as AxiosResponse;
 }
 
@@ -63,7 +63,7 @@ describe('TreasuryExchangeRateProvider — contract', () => {
     };
 
     provider = new TreasuryExchangeRateProvider(
-      httpService as any,
+      httpService as unknown as HttpService,
       new FakeClock(),
     );
   });
@@ -74,10 +74,10 @@ describe('TreasuryExchangeRateProvider — contract', () => {
     expect(quotes.length).toBeGreaterThan(0);
 
     for (const quote of quotes) {
-      expect(quote).toMatchObject<ExchangeRateQuote>({
-        currency: expect.any(String),
-        date: expect.any(String),
-        rate: expect.any(String),
+      expect(quote).toMatchObject({
+        currency: expect.any(String) as string,
+        date: expect.any(String) as string,
+        rate: expect.any(String) as string,
       });
     }
   });

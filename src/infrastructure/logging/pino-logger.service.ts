@@ -7,21 +7,25 @@ import { correlationIdStorage } from './correlation-id.storage';
 export class PinoLoggerService implements LoggerService {
   private readonly logger = pino({
     level: AppConfig.nodeEnv === 'production' ? 'info' : 'debug',
-    transport: AppConfig.nodeEnv !== 'production'
-      ? {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'SYS:standard',
-            ignore: 'pid,hostname',
-          },
-        }
-      : undefined,
+    transport:
+      AppConfig.nodeEnv !== 'production'
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'SYS:standard',
+              ignore: 'pid,hostname',
+            },
+          }
+        : undefined,
   });
 
-  private getContextAndParams(optionalParams: any[]): { context?: string; extra?: any } {
+  private getContextAndParams(optionalParams: unknown[]): {
+    context?: string;
+    extra?: unknown;
+  } {
     let context: string | undefined;
-    let extra: any;
+    let extra: unknown;
 
     if (optionalParams.length > 0) {
       const lastParam = optionalParams[optionalParams.length - 1];
@@ -38,14 +42,14 @@ export class PinoLoggerService implements LoggerService {
     return { context, extra };
   }
 
-  private buildLogPayload(message: any, optionalParams: any[]) {
+  private buildLogPayload(message: unknown, optionalParams: unknown[]) {
     const correlationId = correlationIdStorage.getStore();
     const { context, extra } = this.getContextAndParams(optionalParams);
-    
-    const payload: any = {};
+
+    const payload: Record<string, unknown> = {};
     if (correlationId) payload.correlationId = correlationId;
     if (context) payload.context = context;
-    
+
     if (extra !== undefined) {
       if (Array.isArray(extra) && extra.length === 1) {
         payload.extra = extra[0];
@@ -67,49 +71,49 @@ export class PinoLoggerService implements LoggerService {
     if (typeof message === 'object' && message !== null) {
       return { payload: { ...payload, ...message } };
     }
-    
+
     return { payload, message };
   }
 
-  log(message: any, ...optionalParams: any[]) {
+  log(message: unknown, ...optionalParams: unknown[]) {
     const data = this.buildLogPayload(message, optionalParams);
-    if (data.message !== undefined) {
+    if (data.message !== undefined && typeof data.message === 'string') {
       this.logger.info(data.payload, data.message);
     } else {
       this.logger.info(data.payload);
     }
   }
 
-  error(message: any, ...optionalParams: any[]) {
+  error(message: unknown, ...optionalParams: unknown[]) {
     const data = this.buildLogPayload(message, optionalParams);
-    if (data.message !== undefined) {
+    if (data.message !== undefined && typeof data.message === 'string') {
       this.logger.error(data.payload, data.message);
     } else {
       this.logger.error(data.payload);
     }
   }
 
-  warn(message: any, ...optionalParams: any[]) {
+  warn(message: unknown, ...optionalParams: unknown[]) {
     const data = this.buildLogPayload(message, optionalParams);
-    if (data.message !== undefined) {
+    if (data.message !== undefined && typeof data.message === 'string') {
       this.logger.warn(data.payload, data.message);
     } else {
       this.logger.warn(data.payload);
     }
   }
 
-  debug(message: any, ...optionalParams: any[]) {
+  debug(message: unknown, ...optionalParams: unknown[]) {
     const data = this.buildLogPayload(message, optionalParams);
-    if (data.message !== undefined) {
+    if (data.message !== undefined && typeof data.message === 'string') {
       this.logger.debug(data.payload, data.message);
     } else {
       this.logger.debug(data.payload);
     }
   }
 
-  verbose(message: any, ...optionalParams: any[]) {
+  verbose(message: unknown, ...optionalParams: unknown[]) {
     const data = this.buildLogPayload(message, optionalParams);
-    if (data.message !== undefined) {
+    if (data.message !== undefined && typeof data.message === 'string') {
       this.logger.trace(data.payload, data.message);
     } else {
       this.logger.trace(data.payload);

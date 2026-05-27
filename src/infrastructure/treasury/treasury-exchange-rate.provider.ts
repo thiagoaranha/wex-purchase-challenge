@@ -6,7 +6,6 @@ import {
   ExchangeRateProvider,
   ExchangeRateQuote,
 } from '../../application/interfaces/exchange-rate-provider';
-import type { Clock } from '../../application/interfaces/clock';
 import { SystemClock } from '../clock/system-clock';
 import { TreasuryExchangeRateCache } from './treasury-exchange-rate.cache';
 import { TreasuryApiUnavailableError } from './treasury-api-unavailable.error';
@@ -168,7 +167,9 @@ export class TreasuryExchangeRateProvider implements ExchangeRateProvider {
     // Build a lookup key identical to the one we use when filtering:
     // "<country>|<treasuryCurrency>"
     const availableKeys = new Set(
-      availablePairs.map((pair) => this.buildPairKey(pair.country, pair.currency)),
+      availablePairs.map((pair) =>
+        this.buildPairKey(pair.country, pair.currency),
+      ),
     );
 
     const supported = new Set<string>();
@@ -185,7 +186,9 @@ export class TreasuryExchangeRateProvider implements ExchangeRateProvider {
     );
   }
 
-  private async fetchAvailableCurrencyPairs(): Promise<TreasuryCurrencyRecord[]> {
+  private async fetchAvailableCurrencyPairs(): Promise<
+    TreasuryCurrencyRecord[]
+  > {
     const url = `${this.baseUrl}${RATES_ENDPOINT}`;
     const params = {
       fields: AVAILABILITY_FIELDS,
@@ -278,7 +281,9 @@ export class TreasuryExchangeRateProvider implements ExchangeRateProvider {
     const clampedDay = Math.min(day, maxDay);
 
     return this.formatIsoDate(
-      new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), clampedDay)),
+      new Date(
+        Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), clampedDay),
+      ),
     );
   }
 

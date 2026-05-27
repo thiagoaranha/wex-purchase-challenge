@@ -40,9 +40,11 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/health/ready')
       .expect(200)
-      .then((response) => {
+      .then((response: request.Response) => {
         expect(response.body).toHaveProperty('status', 'ok');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.details).toHaveProperty('database');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(response.body.details.database).toHaveProperty('status', 'up');
       });
   });
