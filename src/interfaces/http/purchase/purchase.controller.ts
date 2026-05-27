@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -15,8 +16,10 @@ import { CreatePurchaseUseCase } from '../../../application/use-cases/create-pur
 import { GetConvertedPurchaseUseCase } from '../../../application/use-cases/get-converted-purchase.use-case';
 import { CreatePurchaseInputDto } from '../../../application/dtos/create-purchase.dto';
 import { TreasuryUnavailableExceptionFilter } from './filters/treasury-unavailable-exception.filter';
+import { DomainErrorExceptionFilter } from './filters/domain-error-exception.filter';
 
 @Controller('purchase')
+@UseFilters(DomainErrorExceptionFilter)
 export class PurchaseController {
   constructor(
     private readonly createPurchaseUseCase: CreatePurchaseUseCase,
@@ -25,6 +28,10 @@ export class PurchaseController {
 
   @Post()
   @ApiResponse({ type: CreatePurchaseOutputInterfaceDto, status: 201 })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Validation failed (invalid description, date, or amount)',
+  })
   async createPurchase(
     @Body() purchaseDto: CreatePurchaseInputInterfaceDto,
   ): Promise<CreatePurchaseOutputInterfaceDto> {
@@ -50,7 +57,19 @@ export class PurchaseController {
   @UseFilters(TreasuryUnavailableExceptionFilter)
   @ApiResponse({ type: GetConvertedPurchaseOutputInterfaceDto, status: 200 })
   @ApiResponse({
-    status: 503,
+    status: HttpStatus.NOT_FOUND,
+    description: 'Purchase not found or invalid purchase ID format',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid currency code format',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNPROCESSABLE_ENTITY,
+    description: 'Unsupported currency or no valid exchange rate available',
+  })
+  @ApiResponse({
+    status: HttpStatus.SERVICE_UNAVAILABLE,
     description: 'Exchange rate provider is unavailable',
   })
   async getConvertedPurchase(

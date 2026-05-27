@@ -52,6 +52,7 @@ describe('TreasuryUnavailableExceptionFilter', () => {
     expect(jsonBody).toMatchObject({
       statusCode: HttpStatus.SERVICE_UNAVAILABLE,
       error: 'Service Unavailable',
+      code: 'TREASURY_API_UNAVAILABLE',
       message: error.message,
     });
   });

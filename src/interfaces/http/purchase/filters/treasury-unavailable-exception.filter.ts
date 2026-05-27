@@ -28,6 +28,7 @@ export class TreasuryUnavailableExceptionFilter implements ExceptionFilter {
     response.status(HttpStatus.SERVICE_UNAVAILABLE).json({
       statusCode: HttpStatus.SERVICE_UNAVAILABLE,
       error: 'Service Unavailable',
+      code: exception.code,
       message: exception.message,
     });
   }

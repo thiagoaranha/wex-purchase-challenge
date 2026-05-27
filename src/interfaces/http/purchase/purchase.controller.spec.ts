@@ -4,6 +4,12 @@ import { CreatePurchaseUseCase } from '../../../application/use-cases/create-pur
 import { GetConvertedPurchaseUseCase } from '../../../application/use-cases/get-converted-purchase.use-case';
 import { CreatePurchaseInputInterfaceDto } from './dtos/create-purchase-input-interface.dto';
 import { TreasuryApiUnavailableError } from '../../../infrastructure/treasury/treasury-api-unavailable.error';
+import { InvalidDescriptionError } from '../../../domain/errors/purchase-domain-errors';
+import { PurchaseNotFoundError } from '../../../application/errors/purchase-not-found.error';
+import {
+  NoValidExchangeRateError,
+  UnsupportedExchangeRateCurrencyError,
+} from '../../../application/errors/exchange-rate-conversion.error';
 
 describe('PurchaseController', () => {
   let controller: PurchaseController;
@@ -67,6 +73,19 @@ describe('PurchaseController', () => {
       });
       expect(result).toEqual(expectedUseCaseResult);
     });
+
+    it('should propagate DomainError so the exception filter can handle it', async () => {
+      const domainError = new InvalidDescriptionError('too_long', 'a'.repeat(51));
+      createPurchaseUseCase.execute.mockRejectedValue(domainError);
+
+      await expect(
+        controller.createPurchase({
+          description: 'a'.repeat(51),
+          transactionDate: '2023-01-01',
+          purchaseAmountUsd: '100.00',
+        }),
+      ).rejects.toThrow(InvalidDescriptionError);
+    });
   });
 
   describe('getConvertedPurchase', () => {
@@ -115,6 +134,36 @@ describe('PurchaseController', () => {
       await expect(
         controller.getConvertedPurchase('some-id', 'BRL'),
       ).rejects.toThrow('Some unexpected error');
+    });
+
+    it('should propagate PurchaseNotFoundError so the exception filter can handle it', async () => {
+      getConvertedPurchaseUseCase.execute.mockRejectedValue(
+        new PurchaseNotFoundError('some-id'),
+      );
+
+      await expect(
+        controller.getConvertedPurchase('some-id', 'BRL'),
+      ).rejects.toThrow(PurchaseNotFoundError);
+    });
+
+    it('should propagate UnsupportedExchangeRateCurrencyError so the exception filter can handle it', async () => {
+      getConvertedPurchaseUseCase.execute.mockRejectedValue(
+        new UnsupportedExchangeRateCurrencyError('XYZ'),
+      );
+
+      await expect(
+        controller.getConvertedPurchase('some-id', 'XYZ'),
+      ).rejects.toThrow(UnsupportedExchangeRateCurrencyError);
+    });
+
+    it('should propagate NoValidExchangeRateError so the exception filter can handle it', async () => {
+      getConvertedPurchaseUseCase.execute.mockRejectedValue(
+        new NoValidExchangeRateError('BRL', '2020-01-01'),
+      );
+
+      await expect(
+        controller.getConvertedPurchase('some-id', 'BRL'),
+      ).rejects.toThrow(NoValidExchangeRateError);
     });
   });
 });
