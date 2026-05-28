@@ -4,8 +4,10 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HealthModule } from './modules/health.module';
 import { PurchaseModule } from './modules/purchase.module';
 import { LoggingModule } from './modules/logging.module';
+import { AuthModule } from './modules/auth.module';
 import { LoggingMiddleware } from './infrastructure/logging/logging.middleware';
 import { AppConfig } from './shared/config/app-config';
+import { JwtGuard } from './interfaces/http/auth/jwt.guard';
 
 @Module({
   imports: [
@@ -18,9 +20,12 @@ import { AppConfig } from './shared/config/app-config';
     HealthModule,
     PurchaseModule,
     LoggingModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [
+    // Global Authentication guard (JWT)
+    { provide: APP_GUARD, useClass: JwtGuard },
     // Rate-limiting guard applied globally to all routes.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],

@@ -24,10 +24,11 @@ The service follows **Domain-Driven Design (DDD)** and **Hexagonal Architecture*
 ## Architectural Decisions
 
 Detailed design documents are stored under `docs/adr/`:
-1. **[ADR 0001: DDD and Hexagonal Architecture](file:///c:/Projetos/WEX-Challenge/wex-purchase-challenge/docs/adr/0001-ddd-hexagonal-architecture.md)**: Isolation of core domain models and application use cases from controllers and database drivers.
-2. **[ADR 0002: PostgreSQL and Prisma ORM](file:///c:/Projetos/WEX-Challenge/wex-purchase-challenge/docs/adr/0002-postgresql-prisma.md)**: Secure schema management and type-safe query building.
-3. **[ADR 0003: Fixed-Point Currency Math](file:///c:/Projetos/WEX-Challenge/wex-purchase-challenge/docs/adr/0003-decimal-money.md)**: Avoidance of IEEE 754 precision drift by using native Javascript `bigint` types for core currency operations.
-4. **[ADR 0004: Exchange Rate Integration Strategy](file:///c:/Projetos/WEX-Challenge/wex-purchase-challenge/docs/adr/0004-exchange-rate-strategy.md)**: 6-month query lookback window, API retry mechanisms, and HTTP response caching.
+1. **[ADR 0001: DDD and Hexagonal Architecture](./docs/adr/0001-ddd-hexagonal-architecture.md)**: Isolation of core domain models and application use cases from controllers and database drivers.
+2. **[ADR 0002: PostgreSQL and Prisma ORM](./docs/adr/0002-postgresql-prisma.md)**: Secure schema management and type-safe query building.
+3. **[ADR 0003: Fixed-Point Currency Math](./docs/adr/0003-decimal-money.md)**: Avoidance of IEEE 754 precision drift by using native Javascript `bigint` types for core currency operations.
+4. **[ADR 0004: Exchange Rate Integration Strategy](./docs/adr/0004-exchange-rate-strategy.md)**: 6-month query lookback window, API retry mechanisms, and HTTP response caching.
+5. **[ADR 0005: JWT Authentication Strategy](./docs/adr/0005-jwt-authentication.md)**: Stateless M2M authentication decoupled via the `ITokenValidator` port.
 
 ---
 
@@ -68,7 +69,7 @@ cp .env.example .env
 | `HEALTH_CHECK_TIMEOUT_MS` | Timeout for liveness and readiness probes. | `5000` |
 
 > [!WARNING]
-> **CORS Security**: Cross-Origin Resource Sharing is enabled on the server. By default, it blocks all requests except those from origins listed in `CORS_ALLOWED_ORIGINS` (using only `GET` and `POST` methods, and restricting headers to `Content-Type` and `Accept`). For production deployment, ensure the appropriate client domains are added to this list. Refer to the **[Operations Runbook](file:///c:/Projetos/WEX-Challenge/wex-purchase-challenge/docs/runbook.md)** for details.
+> **CORS Security**: Cross-Origin Resource Sharing is enabled on the server. By default, it blocks all requests except those from origins listed in `CORS_ALLOWED_ORIGINS` (using only `GET` and `POST` methods, and restricting headers to `Content-Type` and `Accept`). For production deployment, ensure the appropriate client domains are added to this list. Refer to the **[Operations Runbook](./docs/runbook.md)** for details.
 
 ---
 
@@ -113,6 +114,9 @@ pnpm start:dev
 ### 6. Interactive OpenAPI/Swagger Documentation
 Once the server is running, the complete API documentation can be accessed in your browser at:
 - **Swagger UI**: [http://localhost:3000/api](http://localhost:3000/api)
+
+> [!TIP]
+> **How to Authenticate in Swagger**: The API requires a JWT token. Click the **Authorize 🔓** button at the top of the Swagger page. Since we use an OAuth2 Password flow for convenience, enter your `AUTH_CLIENT_ID` in the **username** field and `AUTH_CLIENT_SECRET` in the **password** field. Swagger will automatically fetch the token and inject it into all subsequent requests.
 
 ---
 
@@ -159,6 +163,7 @@ Stores a purchase transaction denominated in USD.
 - **HTTP Request**: `POST /purchase`
 - **Headers**:
   - `Content-Type: application/json`
+  - `Authorization: Bearer <your-access-token>`
 - **Body**:
 ```json
 {
@@ -181,6 +186,8 @@ Stores a purchase transaction denominated in USD.
 Retrieves a purchase transaction and converts its USD value to the target currency.
 
 - **HTTP Request**: `GET /purchase/{id}?targetCurrency={currencyCode}`
+- **Headers**:
+  - `Authorization: Bearer <your-access-token>`
 - **Request Parameters**:
   - `id`: The UUID of the purchase (Path parameter).
   - `targetCurrency`: The 3-character ISO 4217 code (Query parameter, e.g., `EUR`, `BRL`, `CAD`).

@@ -36,7 +36,7 @@ async function bootstrap() {
   app.enableCors({
     origin: AppConfig.corsAllowedOrigins,
     methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
   });
 
   // ── Payload size limit ────────────────────────────────────────────────────
@@ -54,14 +54,25 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // ── Swagger ───────────────────────────────────────────────────────────────
-  const config = new DocumentBuilder()
-    .setTitle('WEX Purchase API')
-    .setDescription('API Documentation')
-    .setVersion('1.0')
-    .build();
+  if (AppConfig.nodeEnv !== 'production') {
+    const config = new DocumentBuilder()
+      .setTitle('WEX Purchase API')
+      .setDescription('API Documentation')
+      .setVersion('1.0')
+      .addOAuth2({
+        type: 'oauth2',
+        flows: {
+          password: {
+            tokenUrl: '/auth/token',
+            scopes: {},
+          },
+        },
+      })
+      .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, documentFactory);
+  }
 
   await app.listen(AppConfig.port);
 }

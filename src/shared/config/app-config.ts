@@ -28,6 +28,15 @@ export const AppConfig = {
   treasuryApiTimeoutMs: Number(process.env.TREASURY_API_TIMEOUT_MS) || 10_000,
   treasuryCacheTtlMs: Number(process.env.TREASURY_CACHE_TTL_MS) || 300_000,
 
+  // ── JWT ───────────────────────────────────────────────────────────────────────
+  jwtSecret: process.env.JWT_SECRET ?? '',
+  jwtAccessTokenTtlSeconds:
+    Number(process.env.JWT_ACCESS_TOKEN_TTL_SECONDS) || 3600,
+
+  // ── Auth client credentials (Approach A — static M2M) ────────────────────────
+  authClientId: process.env.AUTH_CLIENT_ID ?? '',
+  authClientSecret: process.env.AUTH_CLIENT_SECRET ?? '',
+
   // ── Health check ───────────────────────────────────────────────────────────
   healthCheckTimeoutMs: Number(process.env.HEALTH_CHECK_TIMEOUT_MS) || 5_000,
 } as const;

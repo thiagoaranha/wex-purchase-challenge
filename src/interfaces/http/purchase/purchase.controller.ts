@@ -8,7 +8,12 @@ import {
   Query,
   UseFilters,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiResponse,
+  ApiTags,
+  ApiOperation,
+  ApiOAuth2,
+} from '@nestjs/swagger';
 import { CreatePurchaseInputInterfaceDto } from './dtos/create-purchase-input-interface.dto';
 import { CreatePurchaseOutputInterfaceDto } from './dtos/create-purchase-output-interface.dto';
 import { GetConvertedPurchaseOutputInterfaceDto } from './dtos/get-converted-purchase-output-interface.dto';
@@ -19,6 +24,7 @@ import { TreasuryUnavailableExceptionFilter } from './filters/treasury-unavailab
 import { DomainErrorExceptionFilter } from './filters/domain-error-exception.filter';
 
 @ApiTags('Purchase')
+@ApiOAuth2([])
 @Controller('purchase')
 @UseFilters(DomainErrorExceptionFilter)
 export class PurchaseController {
@@ -30,7 +36,8 @@ export class PurchaseController {
   @Post()
   @ApiOperation({
     summary: 'Create a new purchase transaction',
-    description: 'Stores a new purchase transaction with description, date, and USD amount.',
+    description:
+      'Stores a new purchase transaction with description, date, and USD amount.',
   })
   @ApiResponse({ type: CreatePurchaseOutputInterfaceDto, status: 201 })
   @ApiResponse({
@@ -62,7 +69,8 @@ export class PurchaseController {
   @UseFilters(TreasuryUnavailableExceptionFilter)
   @ApiOperation({
     summary: 'Retrieve converted purchase amount',
-    description: 'Retrieves a purchase transaction and converts its USD amount to the specified target currency using the active exchange rate from the Treasury API.',
+    description:
+      'Retrieves a purchase transaction and converts its USD amount to the specified target currency using the active exchange rate from the Treasury API.',
   })
   @ApiResponse({ type: GetConvertedPurchaseOutputInterfaceDto, status: 200 })
   @ApiResponse({
